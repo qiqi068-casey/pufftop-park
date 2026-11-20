@@ -1,6 +1,6 @@
 # Pufftop Park
 
-A small, interactive amusement park adrift above the clouds — with three lighting moods, drifting petals and fireflies, a choreographed night firework show, and a night-only bloom pass.
+A small, interactive amusement park adrift above the clouds — with three lighting moods, a walkable ground-level view, an optional auto-advancing day, four residents with time-and-weather dialogue, drifting petals and fireflies, a choreographed night firework show, and a night-only bloom pass.
 
 Built with **Three.js** using only primitive geometry, procedural canvas textures and vertex-colour batching — no external models, image assets or build step.
 
@@ -11,6 +11,10 @@ Built with **Three.js** using only primitive geometry, procedural canvas texture
 ![Pufftop Park — night mode](screenshot-night.png)
 
 ![Pufftop Park — top-down layout](screenshot-top.png)
+
+![Pufftop Park — first-person walk](screenshot-walk.png)
+
+![Pufftop Park — talking to Mira](screenshot-dialogue.png)
 
 ## Run it
 
@@ -54,6 +58,31 @@ Use the three-state switch in the top-right corner. **Day is the default**; the 
 
 Returning to **Day** hides fireflies and fireworks, disables bloom, restores the pastel daylight baseline, and fades away the sunset/night sky domes and suns.
 
+The small **AUTO** pill below the mode switch advances the same three moods on a slow loop: Day (40 s) → Dusk (25 s) → Night (55 s) → Day. It is on by default. Clicking a mode pauses the loop; click **AUTO / PAUSED** to resume from the current phase. The timer pauses while the tab is hidden.
+
+## Walk the park
+
+**Start Exploring** drops the camera from the aerial view to eye level near the fountain. The crossing takes about two seconds and returns to the exact previous orbit when you leave.
+
+- Desktop: `WASD` or arrow keys to walk, drag to look, `Shift` to move a little faster.
+- Mobile: the on-screen stick moves; drag the right side to look.
+- `Esc` or **Back to Sky** returns to the aerial camera.
+- The player stays on the island and slides along the fountain, carousel, Ferris supports, coaster track and station.
+- Walking close to the Ferris wheel, carousel, coaster, fountain or entrance shows a short park-guide card. Cards fade after a few seconds and have a re-entry cooldown.
+
+## Four residents
+
+Four low-poly residents live at fixed spots around the park:
+
+- **Mira**, with a balloon by the fountain
+- **Theo**, the photographer below the Ferris wheel
+- **June**, the carousel attendant
+- **Nico**, the pinwheel kid near the entrance
+
+Each one has respiratory sway, a weight shift, a procedural head turn and small accessory motion. Their lines are chosen from `phase + weather` (`clear` or `breezy`), so the same person says different things at noon, at golden hour and under fireworks. They never call an API; all dialogue is local.
+
+Click a resident in either camera mode, or walk near one and press `E`. Only one conversation can be open at a time, and a short cooldown prevents the same line from repeating immediately.
+
 ## What is in the scene
 
 - **The floating island** — a flat, gently undulating grass top wrapped over a tall, irregular rock underside. Dangling vines break up the cliff edges, and every flower and pebble is kept inside the island rim.
@@ -71,11 +100,17 @@ Returning to **Day** hides fireflies and fireworks, disables bloom, restores the
 
 | Action | Control |
 | --- | --- |
+| Enter ground-level walk | **Start Exploring** |
 | Switch Day / Sunset / Night | Top-right segmented switch |
 | Keyboard mode switch | `1` Day · `2` Sunset · `3` Night |
+| Pause / resume the day loop | **AUTO / PAUSED** pill |
 | Rotate the island | Drag (mouse or one finger) |
 | Zoom | Scroll wheel or pinch |
 | Reset the view | Double-click / double-tap |
+| Walk | `WASD` / arrows, or the mobile stick |
+| Look around in walk mode | Drag / right-side drag |
+| Leave walk mode | `Esc` or **Back to Sky** |
+| Talk to a resident | Click / tap, or `E` when close |
 | Idle camera drift | Begins automatically after 18 seconds |
 
 The portrait layout widens the orbit framing, compacts the mode switch to icons, and shows a short first-run Day · Dusk · Night hint so the island and controls both fit.
@@ -100,6 +135,9 @@ cloud-park/
 │  ├─ particles.js       // fireflies point system
 │  ├─ postfx.js          // night-only composer / bloom wrapper
 │  ├─ fireworks.js       // launched shells, trails, flash and show choreography
+│  ├─ walk.js            // first-person walk, collision and attraction cards
+│  ├─ daycycle.js        // optional auto-advancing day loop and AUTO state
+│  ├─ narrative.js       // four residents, pick/talk and phase/weather dialogue
 │  ├─ main.js            // bootstrap, three-state UI, animation loop, framing
 │  └─ vendor/
 │     ├─ three.min.js    // Three.js r97, vendored for offline playback
@@ -113,6 +151,8 @@ cloud-park/
 ├─ screenshot-dusk.png
 ├─ screenshot-night.png
 ├─ screenshot-top.png
+├─ screenshot-walk.png
+├─ screenshot-dialogue.png
 ├─ screenshot-mobile-day.png
 ├─ screenshot-mobile-dusk.png
 └─ screenshot-mobile-night.png
@@ -134,4 +174,4 @@ Day, Sunset and Night lighting values live together in `PRESETS` inside `js/atmo
 
 ## Performance
 
-Day mode draws roughly **120 draw calls / 180k triangles**. Sunset renders directly with the same scene, adding no post-processing cost. Night mode renders through the composer at renderer resolution, with the bloom blur chain at half resolution. Repeated small details (flowers, fence posts, cloud puffs, horse parts, wheel spokes, track ties and supports) are merged into vertex-coloured geometries to keep the base scene light.
+Day mode draws roughly **120–150 draw calls / 180k triangles**. Sunset renders directly with the same scene, adding no post-processing cost. Night mode renders through the composer at renderer resolution, with the bloom blur chain at half resolution. Repeated small details (flowers, fence posts, cloud puffs, horse parts, wheel spokes, track ties and supports) are merged into vertex-coloured geometries. The four residents are the only articulated characters; the old background visitor batch is hidden while walking so the eye-level view stays clean.

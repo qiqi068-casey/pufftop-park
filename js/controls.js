@@ -29,6 +29,7 @@
     this.rotateSpeed = 0.0052;
     this.zoomSpeed = 0.08;
 
+    this.enabled = true;
     this.dragging = false;
     this.pointers = new Map();
     this.lastPinch = 0;
@@ -48,6 +49,7 @@
     dom.style.cursor = 'grab';
 
     this._onDown = function (e) {
+      if (!self.enabled) return;
       self.pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
       self.lastInteraction = performance.now();
       self.dragging = true;
@@ -63,7 +65,7 @@
     };
 
     this._onMove = function (e) {
-      if (!self.pointers.has(e.pointerId)) return;
+      if (!self.enabled || !self.pointers.has(e.pointerId)) return;
       var prev = self.pointers.get(e.pointerId);
       var dx = e.clientX - prev.x;
       var dy = e.clientY - prev.y;
@@ -106,6 +108,7 @@
     };
 
     this._onWheel = function (e) {
+      if (!self.enabled) return;
       e.preventDefault();
       self.lastInteraction = performance.now();
       var normalized = e.deltaMode === 1 ? e.deltaY * 16 : e.deltaY;
@@ -118,6 +121,7 @@
     };
 
     this._onDoubleClick = function () {
+      if (!self.enabled) return;
       self.thetaTarget = self.theta = Math.atan2(
         self.homePosition.x - self.homeTarget.x,
         self.homePosition.z - self.homeTarget.z
@@ -140,6 +144,7 @@
   };
 
   OrbitControls.prototype.update = function (dt) {
+    if (!this.enabled) return;
     var now = performance.now();
 
     if (this.autoRotate && !this.dragging && now - this.lastInteraction > this.idleDelay) {

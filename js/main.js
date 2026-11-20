@@ -33,6 +33,9 @@
     var renderer = world.renderer;
     var camera = world.camera;
     var controls = world.controls;
+    var walk = null;
+    var narrative = null;
+    var daycycle = null;
 
     var modeWord = document.getElementById('mode-word');
     var modeButtons = Array.prototype.slice.call(
@@ -64,8 +67,9 @@
       modeHint.classList.add('is-hidden');
     }
 
-    function applyMode(mode) {
+    function applyMode(mode, source) {
       if (!modeCopy[mode]) return;
+      if (source === 'manual' && daycycle) daycycle.pause();
       atmosphere.setMode(mode);
       document.body.setAttribute('data-mode', mode);
       modeWord.textContent = modeCopy[mode].word;
@@ -77,12 +81,13 @@
           modeButtons[i].getAttribute('data-mode') === mode ? 'true' : 'false'
         );
       }
+      if (daycycle && source === 'manual') daycycle.sync(mode);
     }
 
     for (var mb = 0; mb < modeButtons.length; mb++) {
       modeButtons[mb].addEventListener('click', function () {
         dismissHint();
-        applyMode(this.getAttribute('data-mode'));
+        applyMode(this.getAttribute('data-mode'), 'manual');
       });
     }
 
@@ -90,14 +95,28 @@
       if (event.altKey || event.ctrlKey || event.metaKey) return;
       var tag = (event.target && event.target.tagName) || '';
       if (/^(INPUT|TEXTAREA|SELECT)$/.test(tag)) return;
-      if (event.key === '1') { dismissHint(); applyMode('day'); }
-      else if (event.key === '2') { dismissHint(); applyMode('dusk'); }
-      else if (event.key === '3') { dismissHint(); applyMode('night'); }
+      if (event.key === '1') { dismissHint(); applyMode('day', 'manual'); }
+      else if (event.key === '2') { dismissHint(); applyMode('dusk', 'manual'); }
+      else if (event.key === '3') { dismissHint(); applyMode('night', 'manual'); }
     });
 
     if (modeHint) {
       window.setTimeout(dismissHint, reduceMotion ? 5200 : 8000);
     }
+
+    // Walking, residents and the optional day loop all read the same world.
+    walk = P.createWalkMode(world, { rides: rides, park: park });
+    narrative = P.createNarrative(world, {
+      rides: rides,
+      walk: walk,
+      getPhase: function () { return atmosphere.mode(); }
+    });
+    P.walkMode = walk;
+    P.narrative = narrative;
+
+    daycycle = P.createDayCycle({
+      onPhase: function (mode) { applyMode(mode, 'auto'); }
+    });
 
     // fade the curtain once the first frame is on screen
     function reveal() {
@@ -137,8 +156,12 @@
         world.updaters[u](motionDt, motionTime);
       }
 
+      if (daycycle) daycycle.update(dt);
+      if (walk) walk.update(dt);
+      if (!walk || (!walk.isActive() && !walk.isBusy())) controls.update(dt);
+      if (narrative) narrative.update(dt, motionTime, walk.getPosition());
+
       atmosphere.update(motionDt, motionTime);
-      controls.update(dt);
       atmosphere.render(dt);
 
       if (!started && renderer.info.render.frame > 0) reveal();
@@ -187,6 +210,9 @@
       rides: rides,
       park: park,
       atmosphere: atmosphere,
+      walk: walk,
+      narrative: narrative,
+      daycycle: daycycle,
       applyMode: applyMode
     };
 

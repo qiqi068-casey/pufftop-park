@@ -59,8 +59,53 @@
           <span class="choice-label">Night</span>
         </button>
       </div>
+      <button class="auto-toggle" id="auto-toggle" type="button" aria-pressed="true" aria-label="Pause automatic day cycle">
+        <span class="auto-dot" aria-hidden="true"></span>
+        <span id="auto-label">AUTO</span>
+      </button>
       <p class="mode-hint" id="mode-hint">Day · Dusk · Night</p>
     </div>
+
+    <section class="explore-entry" id="explore-entry" aria-label="Enter Pufftop Park">
+      <p class="entry-kicker">The gates are open</p>
+      <h2>Take a wander.</h2>
+      <p class="entry-copy">Walk the paths, listen to the rides, and stay until the fireworks find the sky.</p>
+      <div class="entry-actions">
+        <button class="entry-primary" id="start-exploring" type="button">Start Exploring</button>
+        <button class="entry-secondary" id="free-orbit" type="button">Free Orbit</button>
+      </div>
+    </section>
+
+    <button class="back-to-sky" id="back-to-sky" type="button">Back to Sky</button>
+
+    <div class="walk-hud" id="walk-hud" aria-hidden="true">
+      <div class="walk-stick" id="walk-stick" aria-label="Move">
+        <span class="walk-stick-knob" id="walk-stick-knob"></span>
+      </div>
+      <span class="walk-hint">Move · drag to look · Esc to leave</span>
+      <span class="walk-crosshair" aria-hidden="true"></span>
+    </div>
+
+    <aside class="attraction-card" id="attraction-card" aria-hidden="true">
+      <p class="card-kicker">A note from the park</p>
+      <h3 id="attraction-name">The Fountain</h3>
+      <p id="attraction-text"></p>
+      <button class="card-close" id="attraction-close" type="button">Close</button>
+    </aside>
+
+    <div class="npc-prompt" id="npc-prompt">Press E to talk</div>
+    <div class="npc-hover" id="npc-hover" aria-hidden="true"></div>
+
+    <aside class="dialogue" id="dialogue" aria-hidden="true">
+      <p class="dialogue-name" id="dialogue-name">Mira</p>
+      <p class="dialogue-text" id="dialogue-text"></p>
+      <div class="dialogue-actions">
+        <button class="dialogue-next" id="dialogue-next" type="button">Next</button>
+        <button class="dialogue-close" id="dialogue-close" type="button">Close</button>
+      </div>
+    </aside>
+
+    <div class="day-toast" id="day-toast">A new day at Pufftop Park</div>
 
     <div class="quote" aria-hidden="true">
       <span class="quote-line"></span>
@@ -112,6 +157,9 @@
   <script src="js/particles.js"></script>
   <script src="js/fireworks.js"></script>
   <script src="js/atmosphere.js"></script>
+  <script src="js/walk.js"></script>
+  <script src="js/narrative.js"></script>
+  <script src="js/daycycle.js"></script>
   <script src="js/main.js"></script>
 </body>
 </html>
